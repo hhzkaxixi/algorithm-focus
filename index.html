@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>夺回注意力 · 快捷指令搭建指南</title>
+    <style>
+        :root {
+            --bg: #0d0d0f;
+            --card: #1a1a1e;
+            --card-hover: #222228;
+            --border: #2a2a32;
+            --text: #e8e8ec;
+            --text-dim: #8a8a92;
+            --accent: #6b6b73;
+            --accent-bright: #9a9aa2;
+            --warn: #c4a04e;
+            --success: #5e9b5e;
+            --code-bg: #141418;
+            --pink: #d4a0b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 80px;
+        }
+
+        .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 48px 20px 40px;
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-icon {
+            width: 72px; height: 72px;
+            margin: 0 auto 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px;
+        }
+        .hero h1 {
+            font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .hero .subtitle {
+            color: var(--text-dim); font-size: 15px;
+        }
+
+        /* 痛点 */
+        .pain-point {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 20px;
+            margin: 24px 0;
+            border: 1px solid var(--border);
+        }
+        .pain-point .label {
+            font-size: 12px; color: var(--warn);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 8px; font-weight: 600;
+        }
+        .pain-point p { font-size: 15px; color: var(--text-dim); }
+
+        /* 方案概述 */
+        .solution {
+            margin: 28px 0;
+        }
+        .solution h2 {
+            font-size: 20px; font-weight: 700; margin-bottom: 16px;
+        }
+        .flow-diagram {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 8px; margin: 16px 0;
+        }
+        .flow-step {
+            flex: 1; text-align: center;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px 8px;
+        }
+        .flow-step .icon { font-size: 24px; margin-bottom: 6px; }
+        .flow-step .text { font-size: 12px; color: var(--text-dim); }
+        .flow-arrow { color: var(--accent); font-size: 18px; }
+
+        /* 导入按钮 */
+        .import-section {
+            margin: 32px 0;
+            text-align: center;
+        }
+        .import-btn {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 14px;
+            font-size: 16px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .import-btn:active { transform: scale(0.96); opacity: 0.85; }
+        .import-note {
+            margin-top: 12px; font-size: 13px; color: var(--text-dim);
+        }
+
+        /* 分隔线 */
+        .divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 36px 0 24px;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .divider span { font-size: 13px; color: var(--text-dim); white-space: nowrap; }
+
+        /* 手动教程 */
+        .manual h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+        .step {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .step-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 12px;
+        }
+        .step-num {
+            width: 28px; height: 28px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700; color: #fff;
+            flex-shrink: 0;
+        }
+        .step-title { font-size: 16px; font-weight: 600; }
+        .step-body { font-size: 14px; color: var(--text-dim); }
+        .step-body strong { color: var(--text); }
+        .step-body ul { margin: 8px 0; padding-left: 18px; }
+        .step-body li { margin-bottom: 4px; }
+
+        /* 代码块 */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin: 10px 0;
+            font-family: "SF Mono", "Fira Code", monospace;
+            font-size: 12px;
+            color: var(--accent-bright);
+            word-break: break-all;
+            overflow-x: auto;
+            position: relative;
+        }
+        .code-block .copy-hint {
+            position: absolute; top: 8px; right: 8px;
+            font-size: 10px; color: var(--text-dim);
+            background: var(--card); padding: 2px 8px;
+            border-radius: 6px; border: 1px solid var(--border);
+        }
+
+        /* URL表 */
+        .url-table {
+            width: 100%; border-collapse: collapse;
+            margin: 12px 0; font-size: 13px;
+        }
+        .url-table th {
+            text-align: left; padding: 8px 10px;
+            background: var(--code-bg); color: var(--text-dim);
+            font-weight: 600; font-size: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .url-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            word-break: break-all;
+        }
+        .url-table td:first-child { font-weight: 600; white-space: nowrap; }
+        .url-table td:last-child {
+            font-family: "SF Mono", monospace; font-size: 11px; color: var(--accent-bright);
+        }
+
+        /* 提示框 */
+        .tip {
+            background: rgba(196, 160, 78, 0.08);
+            border: 1px solid rgba(196, 160, 78, 0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+        .tip .tip-label {
+            color: var(--warn); font-weight: 600; margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        /* 添加到主屏幕 */
+        .homescreen {
+            margin-top: 28px;
+            padding: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+        .homescreen h3 { font-size: 16px; margin-bottom: 12px; }
+        .homescreen ol { margin: 8px 0; padding-left: 20px; }
+        .homescreen ol li { margin-bottom: 6px; font-size: 14px; color: var(--text-dim); }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        /* 复制成功提示 */
+        .copy-toast {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success); color: #fff;
+            padding: 10px 24px; border-radius: 10px;
+            font-size: 14px; font-weight: 500;
+            transition: transform 0.3s;
+            z-index: 999;
+        }
+        .copy-toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="hero-icon">🔍</div>
+    <h1>夺回注意力</h1>
+    <p class="subtitle">从推荐算法手中，拿回你的时间</p>
+</div>
+
+<div class="container">
+
+    <div class="pain-point">
+        <div class="label">⚡ 痛点</div>
+        <p>打开小红书本来只想搜个东西，结果一刷就是两小时，还忘了当初想查啥——这就是推荐算法在偷你的注意力。</p>
+    </div>
+
+    <div class="solution">
+        <h2>解决方案</h2>
+        <p style="color: var(--text-dim); font-size: 15px; margin-bottom: 12px;">
+            搭一个快捷指令：<strong style="color: var(--text);">输入关键词 → 选平台 → 直接打开搜索结果页</strong>，完全跳过推荐流。
+        </p>
+        <div class="flow-diagram">
+            <div class="flow-step">
+                <div class="icon">⌨️</div>
+                <div class="text">输入关键词</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="icon">📋</div>
+                <div class="text">选平台</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="icon">🔎</div>
+                <div class="text">直达搜索结果</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 方案A：一键导入 -->
+    <div class="import-section">
+        <button class="import-btn" onclick="downloadShortcut()">
+            ⬇️ 下载快捷指令文件
+        </button>
+        <p class="import-note">下载后在「文件」App中找到它，点开即可导入</p>
+    </div>
+
+    <div class="tip">
+        <div class="tip-label">💡 导入说明</div>
+        <div style="margin-top: 6px;">
+            <strong>方法1</strong>：点击上方按钮下载 <code>.shortcut</code> 文件 → 在「文件」App中找到它 → 点击打开 → 快捷指令App会自动提示导入<br>
+            <strong>方法2</strong>（推荐）：如果导入失败，用下面的手动方案，30秒搞定，100%可靠
+        </div>
+    </div>
+
+    <!-- 方案B：手动创建 -->
+    <div class="divider"><span>或者 · 手动创建（推荐，最可靠）</span></div>
+
+    <div class="manual">
+        <h2>手动搭建步骤</h2>
+
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">1</div>
+                <div class="step-title">新建快捷指令</div>
+            </div>
+            <div class="step-body">
+                <ul>
+                    <li>打开 <strong>快捷指令 App</strong> → 右上角 <strong>+</strong> 新建</li>
+                    <li>点击顶部名称，改名为 <strong>「夺回注意力」</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">2</div>
+                <div class="step-title">添加「要求输入」</div>
+            </div>
+            <div class="step-body">
+                <ul>
+                    <li>搜索并添加动作 <strong>要求输入</strong>（Ask for Input）</li>
+                    <li>类型选 <strong>文本</strong></li>
+                    <li>提示语填：<strong>想搜什么？</strong></li>
+                </ul>
+                <div class="tip" style="margin-top: 10px;">
+                    <div class="tip-label">这一步的作用</div>
+                    弹出一个输入框，让你直接打字输入要搜索的关键词，不用先打开App。
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">3</div>
+                <div class="step-title">添加「URL编码」</div>
+            </div>
+            <div class="step-body">
+                <ul>
+                    <li>搜索并添加动作 <strong>URL编码</strong>（URL Encode）</li>
+                    <li>输入选择 <strong>要求输入的结果</strong></li>
+                </ul>
+                <div class="tip" style="margin-top: 10px;">
+                    <div class="tip-label">为什么需要这步</div>
+                    中文关键词需要编码成 URL 格式（比如"减脂"变成 <code>%E5%87%8F%E8%84%82</code>），否则链接会打不开。
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">4</div>
+                <div class="step-title">添加「从列表中选择」</div>
+            </div>
+            <div class="step-body">
+                <ul>
+                    <li>搜索并添加动作 <strong>从列表中选择</strong>（Choose from List）</li>
+                    <li>选项依次填入：<strong>小红书、B站、知乎、抖音、微博、Google、Bing</strong></li>
+                    <li>提示语填：<strong>在哪个平台搜？</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">5</div>
+                <div class="step-title">添加「词典」+「获取词典值」</div>
+            </div>
+            <div class="step-body">
+                <p>这一步是核心——用词典把<strong>平台名</strong>映射到<strong>搜索URL模板</strong>。</p>
+                <ul style="margin-top: 8px;">
+                    <li>搜索添加 <strong>词典</strong>（Dictionary），填入下面的键值对</li>
+                    <li>再添加 <strong>获取词典值</strong>（Get Dictionary Value）</li>
+                    <li>键设为<strong>上一步选择的平台</strong>，输入设为<strong>词典</strong></li>
+                </ul>
+
+                <p style="margin-top: 12px; font-size: 13px; color: var(--text);">词典内容（直接复制对应的URL，把 <code style="color: var(--warn);">{keyword}</code> 作为占位符）：</p>
+
+                <table class="url-table">
+                    <tr><th>键（平台）</th><th>值（URL模板）</th></tr>
+                    <tr><td>小红书</td><td>https://www.xiaohongshu.com/search_result?keyword={keyword}</td></tr>
+                    <tr><td>B站</td><td>https://search.bilibili.com/all?keyword={keyword}</td></tr>
+                    <tr><td>知乎</td><td>https://www.zhihu.com/search?q={keyword}&type=content</td></tr>
+                    <tr><td>抖音</td><td>https://www.douyin.com/search/{keyword}</td></tr>
+                    <tr><td>微博</td><td>https://m.weibo.cn/search?containerid=1034&type=uid&q={keyword}</td></tr>
+                    <tr><td>Google</td><td>https://www.google.com/search?q={keyword}</td></tr>
+                    <tr><td>Bing</td><td>https://www.bing.com/search?q={keyword}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">6</div>
+                <div class="step-title">添加「替换文本」</div>
+            </div>
+            <div class="step-body">
+                <ul>
+                    <li>搜索添加 <strong>替换文本</strong>（Replace Text）</li>
+                    <li>查找文本填：<code style="color: var(--warn);">{keyword}</code></li>
+                    <li>替换为填：<strong>URL编码的结果</strong>（第3步的输出变量）</li>
+                    <li>文本填：<strong>获取词典值的结果</strong>（第5步的输出）</li>
+                </ul>
+                <div class="tip">
+                    <div class="tip-label">这步在干嘛</div>
+                    把URL模板里的 <code style="color: var(--warn);">{keyword}</code> 占位符，替换成你实际输入的、编码后的关键词，拼出最终链接。
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">7</div>
+                <div class="step-title">添加「打开URL」</div>
+            </div>
+            <div class="step-body">
+                <ul>
+                    <li>搜索添加 <strong>打开URL</strong>（Open URL）</li>
+                    <li>URL填：<strong>替换文本的结果</strong>（第6步的输出）</li>
+                </ul>
+                <p style="margin-top: 8px;">完成！整个动作链如下：</p>
+                <div class="code-block">
+要求输入 → URL编码 → 从列表中选择 → 词典 → 获取词典值 → 替换文本 → 打开URL
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 更简单的替代方案 -->
+    <div class="divider"><span>更简单的方案 · 只要小红书</span></div>
+
+    <div class="manual">
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">★</div>
+                <div class="step-title">极简版（只要小红书）</div>
+            </div>
+            <div class="step-body">
+                <p>如果你只在小红书搜东西，不需要多平台选择，可以省掉"选择列表"和"词典"两步：</p>
+                <ul style="margin-top: 8px;">
+                    <li><strong>要求输入</strong> → 提示语"想搜什么？"，类型"文本"</li>
+                    <li><strong>URL编码</strong> → 输入选"要求输入的结果"</li>
+                    <li><strong>URL</strong> → 填入下面的链接（注意把编码结果接在 <code style="color: var(--warn);">keyword=</code> 后面）</li>
+                    <li><strong>打开URL</strong> → URL选上一步的结果</li>
+                </ul>
+
+                <div class="code-block" onclick="copyText(this)">
+                    https://www.xiaohongshu.com/search_result?keyword=<span style="color: var(--warn);">［这里拖入URL编码的输出变量］</span>
+                    <span class="copy-hint">点击复制</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加到主屏幕 -->
+    <div class="homescreen">
+        <h3>📱 添加到主屏幕（关键一步）</h3>
+        <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 12px;">
+            创建好快捷指令后，把它放到主屏幕，就能像App一样点开就用：
+        </p>
+        <ol>
+            <li>在快捷指令详情页，点击右下角的 <strong>i</strong> 信息按钮</li>
+            <li>点击 <strong>添加到主屏幕</strong></li>
+            <li>（可选）点击图标改成灰色，降低视觉吸引力</li>
+            <li>点击右上角 <strong>添加</strong> 完成</li>
+        </ol>
+        <div class="tip">
+            <div class="tip-label">💡 视频作者的核心技巧</div>
+            把图标设成<strong>灰色</strong>，是为了降低你随手点开刷推荐的冲动。颜色越灰暗，越不容易触发"随手打开"的肌肉记忆。
+        </div>
+    </div>
+
+    <!-- 小红书App深度链接 -->
+    <div class="divider"><span>进阶 · 直接打开App而非网页</span></div>
+
+    <div class="manual">
+        <div class="step">
+            <div class="step-header">
+                <div class="step-num">⚡</div>
+                <div class="step-title">用深度链接直接打开App</div>
+            </div>
+            <div class="step-body">
+                <p>上面的方案打开的是网页版。如果你装了对应App，可以用 <strong>App深度链接</strong> 直接跳到App内的搜索页：</p>
+                <table class="url-table" style="margin-top: 10px;">
+                    <tr><th>平台</th><th>App深度链接</th></tr>
+                    <tr><td>小红书</td><td>xhsdiscover://search_result?keyword={keyword}</td></tr>
+                    <tr><td>B站</td><td>bilibili://search?keyword={keyword}</td></tr>
+                    <tr><td>知乎</td><td>zhihu://search?q={keyword}</td></tr>
+                    <tr><td>抖音</td><td>snssdk1128://search?keyword={keyword}</td></tr>
+                    <tr><td>微博</td><td>sinaweibo://search?q={keyword}</td></tr>
+                </table>
+                <p style="margin-top: 10px; font-size: 13px;">
+                    把词典里的网页URL换成上面的深度链接即可。<strong>推荐用深度链接</strong>，体验更流畅。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 效果对比 -->
+    <div class="divider"><span>效果对比</span></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;">
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px;">
+            <div style="font-size: 12px; color: var(--warn); margin-bottom: 8px; font-weight: 600;">❌ 普通方式</div>
+            <div style="font-size: 14px; color: var(--text-dim);">
+                打开App → 看到推荐流 → "这个有意思" → 刷了2小时 → 忘了要搜啥
+            </div>
+        </div>
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px;">
+            <div style="font-size: 12px; color: var(--success); margin-bottom: 8px; font-weight: 600;">✅ 本方案</div>
+            <div style="font-size: 14px; color: var(--text-dim);">
+                点主屏幕图标 → 输入关键词 → 选平台 → 直达搜索结果 → 查完即走
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>夺回注意力 · 从算法手中拿回你的时间</p>
+        <p style="margin-top: 4px;">参考小红书 @tuesda 的方法，扩展支持多平台</p>
+    </footer>
+
+</div>
+
+<div class="copy-toast" id="copyToast">已复制 ✓</div>
+
+<script>
+const SHORTCUT_BASE64 = "YnBsaXN0MDDYAQIDBAUGBwgJCq2ys7S1tl8QFVdGUXVpY2tBY3Rpb25TdXJmYWNlc18QEVdGV29ya2Zsb3dBY3Rpb25zXldGV29ya2Zsb3dJY29uXxAZV0ZXb3JrZmxvd0ltcG9ydFF1ZXN0aW9uc18QIVdGV29ya2Zsb3dJbnB1dENvbnRlbnRJdGVtQ2xhc3Nlc18QHldGV29ya2Zsb3dNaW5pbXVtQ2xpZW50VmVyc2lvbl8QJFdGV29ya2Zsb3dNaW5pbXVtQ2xpZW50VmVyc2lvblN0cmluZ18QD1dGV29ya2Zsb3dUeXBlc6CsCxYbMDNGSYCDlZiq0gwNDg9fEBpXRldvcmtmbG93QWN0aW9uSWRlbnRpZmllcl8QGldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzXxAdaXMud29ya2Zsb3cuYWN0aW9ucy5hc2suaW5wdXTTEBESExQVXxASV0ZJbnB1dERlZmF1bHRUZXh0W1dGSW5wdXRUeXBlWldGUXVlc3Rpb25QVFRleHRlYPNkHE7ATkj/H9IMDRcYXxAgaXMud29ya2Zsb3cuYWN0aW9ucy5zZXQudmFyaWFibGXRGRpeV0ZWYXJpYWJsZU5hbWVjZBx9IovN0gwNHB1fEB1pcy53b3JrZmxvdy5hY3Rpb25zLnVybGVuY29kZdIeHyAhXFdGRW5jb2RlTW9kZVdXRklucHV0VkVuY29kZdIiIyQvVVZhbHVlXxATV0ZTZXJpYWxpemF0aW9uVHlwZV8QElVudGV4dFRva2VuU3RyaW5n0iUjJipfEBJhdHRhY2htZW50c0J5UmFuZ2VWc3RyaW5n0SgpUzAtM9MqKywaLS5aT3V0cHV0TmFtZVpPdXRwdXRVVUlEVFR5cGVcECQ3ODIzYjhkYi1hY2QwLTRjODQtYjc3MS0zOTRkZGViYWFhNWRcQWN0aW9uT3V0cHV0XxARV0ZUZXh0VG9rZW5TdHJpbmPSDA0XMdEZMmN/FngBi83SDA00NV8QJGlzLndvcmtmbG93LmFjdGlvbnMuY2hvb3NlLmZyb20ubGlzdNU2Nzg5Ojs8PD0+XxAcV0ZDaG9vc2VGcm9tTGlzdEFjdGlvblByb21wdF8QH1dGQ2hvb3NlRnJvbUxpc3RBY3Rpb25TZWxlY3RBbGxfECRXRkNob29zZUZyb21MaXN0QWN0aW9uU2VsZWN0TXVsdGlwbGVfEBFXRkNvbnRyb2xGbG93TW9kZVtXRkxpc3RJdGVtc2dXKFR5cGVfc4BcD36iTmZiAEJ62WJ35U5OYmKWl/NiX65TWlZHb29nbGVUQmluZ9IMDRdH0RlIYl5zU/DSDA1KS18QHmlzLndvcmtmbG93LmFjdGlvbnMuZGljdGlvbmFyedFMTVdXRkl0ZW1z0iIjTn/RT1BfEBtXRkRpY3Rpb25hcnlGaWVsZFZhbHVlSXRlbXOnUVthZ21zedNSU1RVVlhfEBVXRkRpY3Rpb25hcnlGaWVsZFR5cGVVV0ZLZXlXV0ZWYWx1ZV8QG1dGRGljdGlvbmFyeUZpZWxkVHlwZVN0cmluZ9IiI1cv0SY/0iIjWS/RJlpfEDtodHRwczovL3d3dy54aWFvaG9uZ3NodS5jb20vc2VhcmNoX3Jlc3VsdD9rZXl3b3JkPXtrZXl3b3JkfdNSU1RVXF7SIiNdL9EmQNIiI18v0SZgXxAxaHR0cHM6Ly9zZWFyY2guYmlsaWJpbGkuY29tL2FsbD9rZXl3b3JkPXtrZXl3b3JkfdNSU1RVYmTSIiNjL9EmQdIiI2Uv0SZmXxA1aHR0cHM6Ly93d3cuemhpaHUuY29tL3NlYXJjaD9xPXtrZXl3b3JkfSZ0eXBlPWNvbnRlbnTTUlNUVWhq0iIjaS/RJkLSIiNrL9EmbF8QJ2h0dHBzOi8vd3d3LmRvdXlpbi5jb20vc2VhcmNoL3trZXl3b3JkfdNSU1RVbnDSIiNvL9EmQ9IiI3Ev0SZyXxA/aHR0cHM6Ly9tLndlaWJvLmNuL3NlYXJjaD9jb250YWluZXJpZD0xMDM0JnR5cGU9dWlkJnE9e2tleXdvcmR901JTVFV0dtIiI3Uv0SZE0iIjdy/RJnhfEClodHRwczovL3d3dy5nb29nbGUuY29tL3NlYXJjaD9xPXtrZXl3b3JkfdNSU1RVenzSIiN7L9EmRdIiI30v0SZ+XxAnaHR0cHM6Ly93d3cuYmluZy5jb20vc2VhcmNoP3E9e2tleXdvcmR9XxAWV0ZEaWN0aW9uYXJ5RmllbGRWYWx1ZdIMDReB0RmCZQBVAFIATIvNUXjSDA2EhV8QKGlzLndvcmtmbG93LmFjdGlvbnMuZ2V0LmRpY3Rpb25hcnkudmFsdWXThocfiI6PXxAPV0ZEaWN0aW9uYXJ5S2V5XxAbV0ZHZXREaWN0aW9uYXJ5VmFsdWVLZXlUeXBl0iIjiS/SJSaKSNGLjFMwLTLTKissSI0uXxAkZmZjMDRhMGMtOGU3OS00MzhkLTlhZWEtNGU2Nzc0N2IwNzFlWUVudHJ5IEtledIiI5Av0iUmkYLRkpNTMC000yorLIKULl8QJDE0Yjg2ZTEwLTg4OGMtNGE0OC1iYzc3LTE3MTUyNTE1YmJjONIMDReW0RmXZQBVAFIATGohZ3/SDA2Zml8QG2lzLndvcmtmbG93LmFjdGlvbnMucmVwbGFjZdWbnJ2en6ChPKKmXxAaV0ZSZXBsYWNlVGV4dENhc2VTZW5zaXRpdmVfEBFXRlJlcGxhY2VUZXh0RmluZF8QHldGUmVwbGFjZVRleHRSZWd1bGFyRXhwcmVzc2lvbl8QGFdGUmVwbGFjZVRleHRSZXBsYWNlV2l0aFdXRlRleHTTKissMi0u0iIjpy/SJSaol9GSqdMqKyyXlC7SDA2rrF8QG2lzLndvcmtmbG93LmFjdGlvbnMub3BlbnVybNDSrq+wsV8QGVdGV29ya2Zsb3dJY29uR2x5cGhOdW1iZXJfEBhXRldvcmtmbG93SWNvblN0YXJ0Q29sb3IR6HcS/0NR/6CgEQSwVDEyMDCit7hYTkNXaWRnZXRYV2F0Y2hLaXQACAAZADEARQBUAHAAlAC1ANwA7gDvAPwBAQEeATsBWwFiAXcBgwGOAY8BlAGfAaQBxwHKAdkB4AHlAgUCCgIXAh8CJgIrAjECRwJMAmECaAJrAm8CdgKBAowCkQK4AsUC2QLeAuEC6ALtAxQDHwM+A2ADhwObA6cDtgO3A7kDwQPIA80D0gPXA9wD4wPoA+0D8AP1A/oEGwQeBCYEKwQuBEwEVARbBHMEeQSBBJ8EpASnBKwErwTtBPQE+QT8BQEFBAU4BT8FRAVHBUwFTwWHBY4FkwWWBZsFngXIBc8F1AXXBdwF3wYhBigGLQYwBjUGOAZkBmsGcAZzBngGewalBr4GwwbGBtEG1gcBBwgHGgc4Bz0HQgdFB0kHUAd3B4EHhgeLB44HkgeZB8AHxQfIB9MH2Af2CAEIHggyCFMIbgh1CHYIgAiFCIoIjQiUCJkIngihCKgIrQjLCMwI0QjtCQgJCwkQCREJEgkVCRoJHQkmAAAAAAAAAgEAAAAAAAAAuQAAAAAAAAAAAAAAAAAACS8=";
+
+function downloadShortcut() {
+    const byteChars = atob(SHORTCUT_BASE64);
+    const byteArrays = [];
+    for (let i = 0; i < byteChars.length; i += 512) {
+        const slice = byteChars.slice(i, i + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let j = 0; j < slice.length; j++) {
+            byteNumbers[j] = slice.charCodeAt(j);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+    }
+    const blob = new Blob(byteArrays, { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ReclaimAttention.shortcut';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    const toast = document.getElementById('copyToast');
+    toast.textContent = '✅ 文件已下载，去文件App打开它';
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); toast.textContent = '已复制 ✓'; }, 3000);
+}
+
+function copyText(elem) {
+    const text = elem.innerText.replace('点击复制', '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('copyToast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1500);
+    });
+}
+</script>
+
+</body>
+</html>
